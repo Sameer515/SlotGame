@@ -110,9 +110,63 @@ const transpose = (reels) => {
 	return rows;
 };
 
-let balance = deposit();
-const numberofLines = getNumberofbetlines();
-const bet = getBet(balance, numberofLines);
-const reels = spin();
-const rows =transpose(reels);
-console.log(transpose);
+const printRows = (rows) => {
+	// for (let row of rows) {
+	// 	let rowstring = 'A';
+	// 	for (const [i, symbol] of rows.entries()) {
+	// 		rowstring += symbol;
+	// 		if (i != row.length - 1) {
+	// 			rowstring += ' | ';
+	// 		}
+	// 	}	console.log(rowstring);
+	// }
+	for (const row of rows) console.log(row.join(' | '));
+};
+
+const getWinnings = (rows, bet, Lines) => {
+	let winnings = 0;
+	for (let row = 0; row < Lines; row++) {
+		const symbols = rows[row];
+
+		let allsame = true;
+		for (const symbol of symbols) {
+			if (symbol != symbols[0]) {
+				allsame = false;
+				break;
+			}
+		}
+		if (allsame) {
+			winnings += bet * SYMBOL_VALUES[symbols[0]];
+		}
+	}
+	return winnings;
+};
+
+const game = () => {
+	let balance = deposit();
+	while (true) {
+		console.log('You have a balance of $' + balance);
+		const numberofLines = getNumberofbetlines();
+		const bet = getBet(balance, numberofLines);
+		balance -= bet * numberofLines;
+		const reels = spin();
+		const rows = transpose(reels);
+		printRows(rows);
+		const winnings = getWinnings(rows, bet, numberofLines);
+		balance += winnings;
+		console.log('You won,$' + winnings);
+
+		if (balance <= 0) {
+			console.log('You dont have enough money');
+			break;
+		}
+
+		const newGame = prompt(
+			'Do you want to Pay again? (Y/N) '
+		);
+		if (newGame != 'y') break;
+	
+	}
+};
+
+game();
